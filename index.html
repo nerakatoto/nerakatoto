@@ -3,27 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Slot Machine Sederhana</title>
+  <title>Slot Machine dengan Winrate</title>
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
+      background: linear-gradient(45deg, #111, #000);
+      color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background: linear-gradient(45deg, #222, #111);
-      color: #fff;
     }
 
     .slot-machine {
       text-align: center;
-      background: #333;
+      background: #222;
       padding: 20px;
       border-radius: 15px;
       box-shadow: 0 0 20px rgba(255, 0, 0, 0.7);
-      max-width: 400px;
-      width: 90%;
+      max-width: 500px;
+      width: 95%;
+      position: relative;
+    }
+
+    .credit {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: #000;
+      color: gold;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      border: 2px solid gold;
     }
 
     .reels {
@@ -34,16 +47,32 @@
     }
 
     .reel {
-      width: 80px;
-      height: 80px;
+      width: 90px;
+      height: 90px;
       background: #000;
       border: 2px solid #ff4444;
       border-radius: 10px;
-      font-size: 2rem;
       display: flex;
       justify-content: center;
       align-items: center;
       box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.6);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+
+    .reel img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .spinning {
+      animation: spin 0.2s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotateX(0deg); }
+      100% { transform: rotateX(360deg); }
     }
 
     button {
@@ -56,7 +85,7 @@
       border-radius: 8px;
       cursor: pointer;
       transition: 0.3s;
-      width: 100%;
+      margin-top: 10px;
     }
 
     button:hover {
@@ -69,50 +98,158 @@
       font-weight: bold;
     }
 
-    /* Responsive */
-    @media (max-width: 500px) {
-      .reel {
-        width: 60px;
-        height: 60px;
-        font-size: 1.5rem;
-      }
+    .bet-controls {
+      margin: 10px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bet-controls button {
+      background: #333;
+      border: 1px solid #fff;
+      font-size: 18px;
+    }
+
+    .settings {
+      margin-top: 15px;
+      font-size: 14px;
+      text-align: left;
+      background: #111;
+      padding: 10px;
+      border-radius: 10px;
+    }
+
+    .settings label {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .settings input {
+      width: 100%;
     }
   </style>
 </head>
 <body>
   <div class="slot-machine">
+    <div class="credit">💰 Saldo: <span id="saldo">1000</span></div>
     <h2>🎰 Slot Machine 🎰</h2>
+
     <div class="reels">
-      <div class="reel" id="reel1">🍒</div>
-      <div class="reel" id="reel2">🍋</div>
-      <div class="reel" id="reel3">🍊</div>
+      <div class="reel" id="reel1"><img src="https://ik.imagekit.io/siguz6jtd/ea/image(2).png?updatedAt=1757835285569"></div>
+      <div class="reel" id="reel2"><img src="https://ik.imagekit.io/siguz6jtd/ea/image(3).png?updatedAt=1757835283193"></div>
+      <div class="reel" id="reel3"><img src="https://ik.imagekit.io/siguz6jtd/ea/image(1).png?updatedAt=1757835285331"></div>
     </div>
+
+    <div class="bet-controls">
+      <button onclick="ubahTaruhan(-100)">-</button>
+      <span>Taruhan: 💵 <span id="bet">500</span></span>
+      <button onclick="ubahTaruhan(100)">+</button>
+    </div>
+
     <button onclick="spin()">Putar Sekarang</button>
     <div class="result" id="result">Klik tombol untuk memulai!</div>
+
+    <!-- PENGATURAN -->
+   <!--  <div class="settings">
+      <label for="winrate">🎯 Atur Winrate (%): <span id="winrateLabel">30</span>%</label>
+      <input type="range" id="winrate" min="0" max="100" value="30" oninput="updateWinrate(this.value)">
+    </div> -->
   </div>
 
   <script>
-    const symbols = ["🍒", "🍋", "🍊", "🍇", "🍉", "⭐", "7️⃣"];
+    const symbols = [
+      "https://ik.imagekit.io/siguz6jtd/ea/image(2).png?updatedAt=1757835285569",
+      "https://ik.imagekit.io/siguz6jtd/ea/image(4).png?updatedAt=1757835285434",
+      "https://ik.imagekit.io/siguz6jtd/ea/image.png?updatedAt=1757835285402",
+      "https://ik.imagekit.io/siguz6jtd/ea/image(3).png?updatedAt=1757835283193",
+      "https://ik.imagekit.io/siguz6jtd/ea/image(1).png?updatedAt=1757835285331"
+    ];
+
+    let saldo = 1000;
+    let taruhan = 500;
+    let winrate = 30; // default 30%
+
+    function ubahTaruhan(val) {
+      taruhan = Math.max(10, taruhan + val);
+      document.getElementById("bet").textContent = taruhan;
+    }
+
+    function updateWinrate(val) {
+      winrate = parseInt(val);
+      document.getElementById("winrateLabel").textContent = val;
+    }
 
     function spin() {
-      const reel1 = symbols[Math.floor(Math.random() * symbols.length)];
-      const reel2 = symbols[Math.floor(Math.random() * symbols.length)];
-      const reel3 = symbols[Math.floor(Math.random() * symbols.length)];
+      if (saldo < taruhan) {
+        document.getElementById("result").textContent = "❌ Saldo tidak cukup!";
+        return;
+      }
 
-      document.getElementById("reel1").textContent = reel1;
-      document.getElementById("reel2").textContent = reel2;
-      document.getElementById("reel3").textContent = reel3;
+      saldo -= taruhan;
+      updateSaldo();
+      const reels = [document.getElementById("reel1"), document.getElementById("reel2"), document.getElementById("reel3")];
+      const intervals = [];
 
-      if (reel1 === reel2 && reel2 === reel3) {
-        document.getElementById("result").textContent = "🎉 JACKPOT! Kamu Menang! 🎉";
+      document.getElementById("result").textContent = "🎲 Memutar...";
+      reels.forEach(reel => reel.classList.add("spinning"));
+
+      reels.forEach((reel, index) => {
+        let i = 0;
+        intervals[index] = setInterval(() => {
+          reel.innerHTML = `<img src="${symbols[i % symbols.length]}">`;
+          i++;
+        }, 100);
+
+        setTimeout(() => {
+          clearInterval(intervals[index]);
+          reel.classList.remove("spinning");
+
+          // cek apakah menang berdasarkan winrate
+          if (index === reels.length - 1) {
+            const isWin = Math.random() * 100 < winrate;
+            if (isWin) {
+              // buat hasil 3 sama
+              let symbol = symbols[Math.floor(Math.random() * symbols.length)];
+              reels.forEach(r => r.innerHTML = `<img src="${symbol}">`);
+            } else {
+              // random biasa
+              reel.innerHTML = `<img src="${symbols[Math.floor(Math.random() * symbols.length)]}">`;
+            }
+            if (index === 2) checkResult();
+          } else {
+            reel.innerHTML = `<img src="${symbols[Math.floor(Math.random() * symbols.length)]}">`;
+          }
+        }, 1500 + index * 800);
+      });
+    }
+
+    function checkResult() {
+      const r1 = document.getElementById("reel1").querySelector("img").src;
+      const r2 = document.getElementById("reel2").querySelector("img").src;
+      const r3 = document.getElementById("reel3").querySelector("img").src;
+      let menang = 0;
+
+      if (r1 === r2 && r2 === r3) {
+        menang = taruhan * 10;
+        document.getElementById("result").textContent = "🎉 JACKPOT! Kamu Menang " + menang + "!";
         document.getElementById("result").style.color = "gold";
-      } else if (reel1 === reel2 || reel2 === reel3 || reel1 === reel3) {
-        document.getElementById("result").textContent = "😊 Lumayan, dapat pasangan!";
+      } else if (r1 === r2 || r2 === r3 || r1 === r3) {
+        menang = taruhan * 3;
+        document.getElementById("result").textContent = "😊 Lumayan! Menang " + menang;
         document.getElementById("result").style.color = "lightgreen";
       } else {
         document.getElementById("result").textContent = "😢 Coba lagi ya!";
         document.getElementById("result").style.color = "red";
       }
+
+      saldo += menang;
+      updateSaldo();
+    }
+
+    function updateSaldo() {
+      document.getElementById("saldo").textContent = saldo;
     }
   </script>
 </body>
