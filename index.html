@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slot Machine Sederhana</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(45deg, #222, #111);
+      color: #fff;
+    }
+
+    .slot-machine {
+      text-align: center;
+      background: #333;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 0, 0, 0.7);
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .reels {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .reel {
+      width: 80px;
+      height: 80px;
+      background: #000;
+      border: 2px solid #ff4444;
+      border-radius: 10px;
+      font-size: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.6);
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      width: 100%;
+    }
+
+    button:hover {
+      background: darkred;
+    }
+
+    .result {
+      margin-top: 15px;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    /* Responsive */
+    @media (max-width: 500px) {
+      .reel {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="slot-machine">
+    <h2>🎰 Slot Machine 🎰</h2>
+    <div class="reels">
+      <div class="reel" id="reel1">🍒</div>
+      <div class="reel" id="reel2">🍋</div>
+      <div class="reel" id="reel3">🍊</div>
+    </div>
+    <button onclick="spin()">Putar Sekarang</button>
+    <div class="result" id="result">Klik tombol untuk memulai!</div>
+  </div>
+
+  <script>
+    const symbols = ["🍒", "🍋", "🍊", "🍇", "🍉", "⭐", "7️⃣"];
+
+    function spin() {
+      const reel1 = symbols[Math.floor(Math.random() * symbols.length)];
+      const reel2 = symbols[Math.floor(Math.random() * symbols.length)];
+      const reel3 = symbols[Math.floor(Math.random() * symbols.length)];
+
+      document.getElementById("reel1").textContent = reel1;
+      document.getElementById("reel2").textContent = reel2;
+      document.getElementById("reel3").textContent = reel3;
+
+      if (reel1 === reel2 && reel2 === reel3) {
+        document.getElementById("result").textContent = "🎉 JACKPOT! Kamu Menang! 🎉";
+        document.getElementById("result").style.color = "gold";
+      } else if (reel1 === reel2 || reel2 === reel3 || reel1 === reel3) {
+        document.getElementById("result").textContent = "😊 Lumayan, dapat pasangan!";
+        document.getElementById("result").style.color = "lightgreen";
+      } else {
+        document.getElementById("result").textContent = "😢 Coba lagi ya!";
+        document.getElementById("result").style.color = "red";
+      }
+    }
+  </script>
+</body>
+</html>
